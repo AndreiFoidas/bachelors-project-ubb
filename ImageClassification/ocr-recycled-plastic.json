@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "ocr-recycled-plastic",
+  "private_key_id": "1ed1e51a22f8762ff401cf860b944febc1a14666",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC3dJOQ3whjLC3Z\n9a9+RFf19ANqMKuzytVp+E2Qmb8o6T6Fidd/V2eMnzy+agqYQohNBXfP4xVgosEG\n29sGV9wMkY1uka+raVGEqdo2Ztt3njKEKJSmgefv6h52HBF0Xu0W/lnsqy3D6Mrh\nROy/C84+ElITDttaY0Rde3r00OAsy/55JXDFqf0mITHB2aVlruzcUp1VeZrdaI6b\nsOtj/fTNhom6gwmA09kaAHaNCw/mL4LJ730NsWHPs0lLuIX4O1ak3XSOtgG+s8o7\n80RTyO5QCqrW+5lXjnBrUa/dxZiyU6S2wGdUXJGuSmjbzlZxXyQRAQFE6jCKeybD\npZcyZCVhAgMBAAECggEAAmRYOjbWPqjITkO4To6okPHmC3/n9TerUa7loAGJLwjf\nglE6SJREqt42pgru6W5QpaRxG/pLgI+Osb6zG+GQYm+RZwQqRLNiVzb5u+TabrRW\n10dKLOObuRKV5BdYmOpV8AtP89iFh7zkzEwgRBtszH1jqZDzhjmuHgPqpf+FNMBM\ngMMfAyMxPVL2wusonqlKOQbeeEWpaAybs7+vXmmG/BBvvvJBsKiJytBHmMcFE5iO\nUIZm/O+z9Bvoc41/2OygQqoMZDt4YY33PxzIf57zFLFBCjkLS0s5Mu/MqUKKpzE1\nHL9Bhr1jndkYGJd/k2q6OcB9JM5Qo624HBoHfF+OwwKBgQDhYjnNbyftLXTIKStU\n0hukGUYz0kdK2vUnb0xA5SW6FdVP6X77Y0oHf/b+z6ji+mnpwJjV1UStYjKfyXxD\ncAz+v7delH9jwBK9Z4gmfAyKDB50DF5T//dPiEOaggC79RZ7cpL5UkiowZYEGPDI\nLKwTBaGu9C2llera9tr1jGIC+wKBgQDQYEhtyJc4aUIunL/UTOYn3KLOu1SP6K5/\nLvk6RQ4JaFMPwlXNbej0GVdjWbwYqfjaxbdEZ2cyAzCA7Q3acnf8u5Afx5+9S17A\nHHYEtLMLPpRdS7Zub0Cy46eYHKT7YI61VqRJAo1v0a2raKkTwuLO/a0/DaP+JlaJ\n3mz7tGAqUwKBgQC9KfDzsFClaxpyCMO6jCHw59mZEusNM5rA/1PTv7+bYEnJqWMP\nYPU4ODm5AddwsdYE/8YG6tmaYCm3HKez/i6Z/ZTMx/vnX8UavPNzwXfQwX0pz1u4\nSsRqNybuXiB5oKm+8JnUsjATm27qf3hPudaunHJoYb6SFLKqFrgNkUaN0wKBgHZD\n71e/3XP66cEi3g1Uh9xf8Vd8IwZ6fW9Z7cIQp2LXfy0WkzRBCVJhf6O3rnYhIkio\npteACKXuAX1rDc3J4ifjHG2tExCQ0noerS0GkgfzwKki66vKIOJnKxu+RjUWHGj3\nf86gUD4Ct5rtj+jTV387ozSCPW1lvQAK6bgCLAJZAoGAXT5trR6GemsmbLeS4bhk\nemNWq0NIfGTxhrj/IZ77PDZV3+ScCuyF6Z+xVsa3dUSPNZAY0UUH7+pczYgLp0NA\nJuD2bQPl8JpwWjbUagIWoBb2j+hVC2aU66fM0Lw1X2Zao5ueYJN/atBUp42/DjE4\nf/Kp8KXfjXoIwvSxOrWLhWA=\n-----END PRIVATE KEY-----\n",
+  "client_email": "andrei@ocr-recycled-plastic.iam.gserviceaccount.com",
+  "client_id": "110323342919998917564",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/andrei%40ocr-recycled-plastic.iam.gserviceaccount.com"
+}
