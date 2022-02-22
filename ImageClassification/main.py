@@ -22,7 +22,7 @@ train_path = "../Images/seven_plastics/train"
 test_path = "../Images/seven_plastics/test"
 res_path = "../Images/seven_plastics/manual_test"
 #checkpoint_path = "models/cp.ckpt"
-checkpoint_path = "models/cp2.ckpt"
+checkpoint_path = "models/cpF.ckpt"
 #checkpoint_path = "models/cpGray.ckpt"
 checkpoint_dir = os.path.dirname(checkpoint_path)
 
@@ -98,7 +98,7 @@ def Preprocessing_Images():
 
     x = Flatten()(vgg.output)
     # adding output layer.Softmax classifier is used as it is multi-class classification
-    prediction = Dense(4, activation='softmax')(x)
+    prediction = Dense(8, activation='softmax')(x)
 
     model = Model(inputs=vgg.input, outputs=prediction)
 
@@ -122,7 +122,7 @@ def Preprocessing_Images():
         train_x,
         train_y,
         validation_data=(test_x, test_y),
-        epochs=3,
+        epochs=15,
         callbacks=[early_stop, cp_callback],
         batch_size=32, shuffle=True)
 
@@ -159,7 +159,15 @@ def Preprocessing_Images():
         elif pred[0][2] > 0.5:
             print("3 PVC")
         elif pred[0][3] > 0.5:
-            print("5 ")
+            print("4 PE LD")
+        elif pred[0][4] > 0.5:
+            print("5 PP")
+        elif pred[0][5] > 0.5:
+            print("6 PS")
+        elif pred[0][6] > 0.5:
+            print("7 OTHER")
+        elif pred[0][7] > 0.5:
+            print("8 NOT PLASTIC")
         else:
             print("Unknown")
 
@@ -174,7 +182,7 @@ def Testing_Images():
 
     x = Flatten()(vgg.output)
     # adding output layer.Softmax classifier is used as it is multi-class classification
-    prediction = Dense(4, activation='softmax')(x)
+    prediction = Dense(8, activation='softmax')(x)
 
     model = Model(inputs=vgg.input, outputs=prediction)
 
@@ -198,12 +206,22 @@ def Testing_Images():
         print("Guessed val: " + str(img_name) + " " + str(pred))
         if pred[0][0] > 0.5:
             print("1 PET")
-        if pred[0][1] > 0.5:
+        elif pred[0][1] > 0.5:
             print("2 PE HD")
-        if pred[0][2] > 0.5:
+        elif pred[0][2] > 0.5:
             print("3 PVC")
-        if pred[0][3] > 0.5:
-            print("5 ")
+        elif pred[0][3] > 0.5:
+            print("4 PE LD")
+        elif pred[0][4] > 0.5:
+            print("5 PP")
+        elif pred[0][5] > 0.5:
+            print("6 PS")
+        elif pred[0][6] > 0.5:
+            print("7 OTHER")
+        elif pred[0][7] > 0.5:
+            print("8 NOT PLASTIC")
+        else:
+            print("Unknown")
 
 
 if __name__ == '__main__':
