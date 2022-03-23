@@ -1,14 +1,12 @@
-#import tensorflow
+# import tensorflow
 
 from tensorflow.keras.layers import Input, Lambda, Dense, Flatten, Dropout
 from tensorflow.keras.models import Model
 from tensorflow.keras.applications.vgg19 import VGG19
 from tensorflow.keras import layers
 from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.keras.applications.vgg19 import preprocess_input
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import RMSprop
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.applications.inception_v3 import InceptionV3
@@ -47,6 +45,10 @@ class ImageClassification:
         self._vgg19_model = None
         self.init_Vgg19()
         self.init_EfficientNet()
+
+    def Load_Models(self):
+        self._efficientNet_model.load_weights(self._checkpoint_effnet_path)
+        self._vgg19_model.load_weights(self._checkpoint_vgg19_path)
 
     def Read_Images(self):
         x_train = []
@@ -280,7 +282,7 @@ class ImageClassification:
 
         for img in os.listdir(self._test_path):
             img_name = img
-            img = image.load_img(self._test_path + "/" + img, target_size=(224, 224))
+            img = image.load_img(self._test_path + "/" + img, target_size=IMAGE_SIZE)
             plt.imshow(img)
             plt.show()
             x = image.img_to_array(img)
@@ -298,7 +300,7 @@ class ImageClassification:
 
         for img in os.listdir(self._test_path):
             img_name = img
-            img = image.load_img(self._test_path + "/" + img, target_size=(224, 224))
+            img = image.load_img(self._test_path + "/" + img, target_size=IMAGE_SIZE)
             plt.imshow(img)
             plt.show()
             x = image.img_to_array(img)
@@ -310,6 +312,48 @@ class ImageClassification:
             for i in pred[0]:
                 ct = ct + 1
                 print(str(ct) + ' - {:.2f}%'.format(i * 100))
+
+    def Classify_Photo_VGG19(self, photo_path, printOutput):
+        # self._vgg19_model.load_weights(self._checkpoint_vgg19_path)
+
+        img_name = photo_path
+        img = image.load_img(photo_path, target_size=IMAGE_SIZE)
+        plt.imshow(img)
+        plt.show()
+        x = image.img_to_array(img)
+        x = np.expand_dims(x, axis=0)
+        images = np.vstack([x])
+        pred = self._vgg19_model.predict(images, batch_size=1)
+        if printOutput:
+            print("Guessed val: " + str(img_name) + " " + str(pred))
+        ct = 0
+        for i in pred[0]:
+            ct = ct + 1
+            if printOutput:
+                print(str(ct) + ' - {:.2f}%'.format(i * 100))
+
+        return pred[0]
+
+    def Classify_Photo_EfficientNet(self, photo_path, printOutput):
+        # self._efficientNet_model.load_weights(self._checkpoint_effnet_path)
+
+        img_name = photo_path
+        img = image.load_img(photo_path, target_size=IMAGE_SIZE)
+        plt.imshow(img)
+        plt.show()
+        x = image.img_to_array(img)
+        x = np.expand_dims(x, axis=0)
+        images = np.vstack([x])
+        pred = self._efficientNet_model.predict(images, batch_size=1)
+        if printOutput:
+            print("Guessed val: " + str(img_name) + " " + str(pred))
+        ct = 0
+        for i in pred[0]:
+            ct = ct + 1
+            if printOutput:
+                print(str(ct) + ' - {:.2f}%'.format(i * 100))
+
+        return pred[0]
 
 
 if __name__ == '__main__':
@@ -332,5 +376,10 @@ if __name__ == '__main__':
             ic.Test_VGG19()
         elif mode == 5:
             ic.Test_EfficientNet()
+        elif mode == 6:
+            ic.Load_Models()
+            file = "ServerPhotos/2022-03-23T12:53:57.541.jpg"
+            ic.Classify_Photo_VGG19(file, True)
+            ic.Classify_Photo_EfficientNet(file, True)
         elif mode == 0:
             break

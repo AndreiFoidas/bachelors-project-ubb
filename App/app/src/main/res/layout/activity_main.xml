@@ -35,9 +35,18 @@
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="600dp"
+        android:layout_height="450dp"
         android:layout_marginTop="15dp"
-        android:src="@mipmap/ic_launcher"
-        android:contentDescription="Your picture" />
+        android:contentDescription="Your picture"
+        android:src="@mipmap/ic_launcher" />
+
+    <Button
+        android:id="@+id/btnUploadPicture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_gravity="center_horizontal"
+        android:enabled="false"
+        android:text="Upload Picture" />
 
 </LinearLayout>
