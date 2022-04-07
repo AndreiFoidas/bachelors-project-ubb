@@ -2,10 +2,12 @@ package com.ubb.andrei
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.Matrix
 import android.media.ExifInterface
 import android.net.Uri
@@ -13,16 +15,23 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.Toast
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import java.io.File
+import com.ubb.andrei.domain.ServerResponse
+import com.ubb.andrei.domain.plasticList
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import okhttp3.*
+import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -33,9 +42,9 @@ private lateinit var photoFile: File
 class MainActivity : AppCompatActivity() {
 
     private val REQUEST_PERMISSION = 10
-    //private val REQUEST_IMAGE_CAPTURE = 1
-    //private val REQUEST_PICK_IMAGE = 2
+    val pList = plasticList
 
+    //Activity Main View
     var btnTakePicture: Button? = null
     var btnOpenGallery: Button? = null
     var btnUploadPicture: Button? = null
@@ -45,6 +54,20 @@ class MainActivity : AppCompatActivity() {
     var uriPhoto: Uri? = null
     var isTaken: Boolean? = null
 
+     var photoGuess : ServerResponse? = null
+
+    //Result Popup View
+    var btnMoreInfo: Button? = null
+    var btnWrong: Button? = null
+    var icon: ImageView? = null
+    var txtName: TextView? = null
+    var txtRecyclable: TextView? = null
+    var txtReusable: TextView? = null
+    var plasticSpinner: Spinner? = null
+
+    lateinit var dialogBuilder: AlertDialog.Builder
+    lateinit var dialog: AlertDialog
+
     private fun checkCameraPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
             != PackageManager.PERMISSION_GRANTED) {
@@ -52,6 +75,36 @@ class MainActivity : AppCompatActivity() {
                 arrayOf(Manifest.permission.CAMERA),
                 REQUEST_PERMISSION)
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        btnTakePicture = findViewById<Button>(R.id.btnTakePicture)
+        btnOpenGallery = findViewById<Button>(R.id.btnOpenGallery)
+        btnUploadPicture = findViewById<Button>(R.id.btnUploadPicture)
+        imageView = findViewById<ImageView>(R.id.imageView)
+
+        btnTakePicture?.setOnClickListener {
+            buttonTakePictureClicked()
+            //createNewResultPopup()
+        }
+
+        btnOpenGallery?.setOnClickListener {
+            buttonOpenGalleryClicked()
+        }
+
+        btnUploadPicture?.setOnClickListener {
+
+            buttonUploadPictureClicked()
+        }
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        checkCameraPermission()
     }
 
     private fun rotateImage(source: Bitmap, angle: Int): Bitmap? {
@@ -114,30 +167,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        btnTakePicture = findViewById<Button>(R.id.btnTakePicture)
-        btnOpenGallery = findViewById<Button>(R.id.btnOpenGallery)
-        btnUploadPicture = findViewById<Button>(R.id.btnUploadPicture)
-        imageView = findViewById<ImageView>(R.id.imageView)
-
-        btnTakePicture?.setOnClickListener {
-            buttonTakePictureClicked()
-        }
-
-        btnOpenGallery?.setOnClickListener {
-            buttonOpenGalleryClicked()
-        }
-
-        btnUploadPicture?.setOnClickListener {
-
-            buttonUploadPictureClicked()
-        }
-    }
-
     fun testConnection(){
         Thread {
             val client = OkHttpClient()
@@ -197,40 +226,30 @@ class MainActivity : AppCompatActivity() {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SSS")
         val formatted = currentTime.format(formatter)
         val photoName = "$formatted.jpg"
+        var result = ""
 
-        if(isTaken == true) {
-            UploadUtility(this).uploadFile(stringPhoto!!, photoName)
-            //UploadUtility(this).uploadFile(stringPhoto!!)
+        runBlocking {
+            // getResultAsync(this, photoName)
+            //launch { DoAsync(photoName)}
         }
-        if(isTaken == false){
-            UploadUtility(this).uploadFile(uriPhoto!!, photoName)
-            //UploadUtility(this).uploadFile(uriPhoto!!)
-        }
+
+        Log.d("C", photoGuess.toString())
+        createNewResultPopup()
+
     }
 
-    /*
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_IMAGE_CAPTURE) {
-                //val uri = Uri.parse(currentPhotoPath)
-                //ivImage.setImageURI(uri)
-
-                val takenImage = data?.extras?.get("data") as Bitmap
-                imageView?.setImageBitmap(takenImage)
+    suspend private fun getResultAsync(scope: CoroutineScope, photoName: String) = scope.async {
+        launch {
+            if(isTaken == true) {
+                photoGuess = UploadUtility(this@MainActivity).uploadFile(stringPhoto!!, photoName)
+                //UploadUtility(this).uploadFile(stringPhoto!!)
             }
-            else if (requestCode == REQUEST_PICK_IMAGE) {
-                val imageUri = data?.getData()
-                imageView?.setImageURI(imageUri)
+            if(isTaken == false){
+                photoGuess = UploadUtility(this@MainActivity).uploadFile(uriPhoto!!, photoName)
+                //UploadUtility(this).uploadFile(uriPhoto!!)
             }
         }
-
-        super.onActivityResult(requestCode, resultCode, data)
-    }
-    */
-
-    override fun onResume() {
-        super.onResume()
-        checkCameraPermission()
+        Log.d("B", photoGuess.toString())
     }
 
     private fun getPhotoFile(fileName: String): File {
@@ -240,4 +259,59 @@ class MainActivity : AppCompatActivity() {
         return File.createTempFile(fileName, ".jpg", storageDirectory)
     }
 
+    fun createNewResultPopup(){
+        dialogBuilder = AlertDialog.Builder(this)
+        var resultPopupView = layoutInflater.inflate(R.layout.result_popup, null)
+
+        icon = resultPopupView.findViewById<ImageView>(R.id.icon)
+        txtName = resultPopupView.findViewById<TextView>(R.id.txtName)
+        txtRecyclable = resultPopupView.findViewById<TextView>(R.id.txtRecyclable)
+        txtReusable = resultPopupView.findViewById<TextView>(R.id.txtReusable)
+        plasticSpinner = resultPopupView.findViewById<Spinner>(R.id.plasticSpinner)
+        btnWrong = resultPopupView.findViewById<Button>(R.id.btnWrong)
+        btnMoreInfo = resultPopupView.findViewById<Button>(R.id.btnMoreInfo)
+
+        btnWrong?.setOnClickListener {
+            plasticSpinner?.visibility = View.VISIBLE
+        }
+
+        btnMoreInfo?.setOnClickListener {
+
+        }
+
+        plasticSpinner?.visibility = View.INVISIBLE
+
+        Log.d("Z", photoGuess.toString())
+
+        if (photoGuess != null){
+            val id = photoGuess!!.nr
+
+            if (id != -1) {
+                var plastic = pList.data[id]
+
+                Log.d("Z", plastic.toString())
+
+                txtName?.text = "${plastic.number} ${plastic.abbreviation}"
+                if (plastic.recyclable) {
+                    txtRecyclable?.text = "Recyclable: YES"
+                    txtRecyclable?.setTextColor(Color.GREEN)
+                } else {
+                    txtRecyclable?.text = "Recyclable: NO"
+                    txtRecyclable?.setTextColor(Color.RED)
+                }
+
+                if (plastic.reusable) {
+                    txtReusable?.text = "Reusable: YES"
+                    txtReusable?.setTextColor(Color.GREEN)
+                } else {
+                    txtReusable?.text = "Reusable: NO"
+                    txtReusable?.setTextColor(Color.RED)
+                }
+            }
+        }
+
+        dialogBuilder.setView(resultPopupView)
+        dialog = dialogBuilder.create()
+        dialog.show()
+    }
 }

@@ -33,11 +33,13 @@ def post_upload_photo():
     file = request.files["uploaded_file"]
     file.save(os.path.join(api.config['UPLOAD_FOLDER'], secure_filename(file.filename)))
 
-    guessedPlastic = Classify_Photo(UPLOAD_FOLDER+"/"+file.filename)
+    guessedPlastic, indexMax, maxValue = Classify_Photo(UPLOAD_FOLDER+"/"+file.filename)
 
     return jsonify(
+        nr=indexMax,
+        name=guessedPlastic,
+        percentage=maxValue,
         result="success",
-        guess=guessedPlastic
     )
 
 def Classify_Photo(filePath):
@@ -57,7 +59,7 @@ def Classify_Photo(filePath):
     print(tempPred)
     pred = [a + b for a, b in zip(pred, tempPred)]
 
-    # tempPred = ocr.Classify_Photo_OCR(filePath, True)
+    #tempPred = ocr.Classify_Photo_OCR(filePath, True)
     tempPred = [0.0] * 8
     print("OCR: ")
     print(tempPred)
@@ -77,7 +79,7 @@ def Classify_Photo(filePath):
     print(maxValue)
     print(guessedPlastic)
 
-    return guessedPlastic
+    return guessedPlastic, indexMax, maxValue
 
 def Start_Server():
     global imageClassification, ocr
@@ -85,7 +87,8 @@ def Start_Server():
     ocr = OCR()
     imageClassification.Load_Models()
 
-    api.run("192.168.0.148", port=420)
+    # api.run("192.168.0.148", port=420)
+    api.run()
 
 
 if __name__ == '__main__':
