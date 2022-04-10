@@ -8,31 +8,33 @@ import android.webkit.MimeTypeMap
 import android.widget.Toast
 import com.google.gson.Gson
 import com.ubb.andrei.domain.ServerResponse
+import com.ubb.andrei.utils.IObservable
+import com.ubb.andrei.utils.IObserver
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 
-class UploadUtility(activity: Activity) {
+class UploadUtility(activity: Activity, override val observers: ArrayList<IObserver>): IObservable {
 
     var activity = activity;
     var dialog: ProgressDialog? = null
     // var serverURL: String = "http://192.168.0.148:420"
-    var serverURL: String = "10.0.2.2:3000"
+    var serverURL: String = "http://10.0.2.2:5000"
     var serverUploadDirectoryPath: String = "E:\\Facultate\\Licenta\\bachelors-project-ubb\\ServerPhotos"
     val client = OkHttpClient()
     lateinit var guess : ServerResponse
 
-    fun uploadFile(sourceFilePath: String, uploadedFileName: String? = null): ServerResponse {
+    fun uploadFile(sourceFilePath: String, uploadedFileName: String? = null) {
         return uploadFile(File(sourceFilePath), uploadedFileName)
     }
 
-    fun uploadFile(sourceFileUri: Uri, uploadedFileName: String? = null): ServerResponse {
+    fun uploadFile(sourceFileUri: Uri, uploadedFileName: String? = null) {
         val pathFromUri = URIPathHelper().getPath(activity, sourceFileUri)
         return uploadFile(File(pathFromUri), uploadedFileName)
     }
 
-    fun uploadFile(sourceFile: File, uploadedFileName: String? = null): ServerResponse {
+    fun uploadFile(sourceFile: File, uploadedFileName: String? = null) {
         var plastic = ""
         Thread {
             val mimeType = getMimeType(sourceFile);
@@ -70,6 +72,10 @@ class UploadUtility(activity: Activity) {
 
 
                 if (response.isSuccessful) {
+
+                    Log.d("Y", guess.toString())
+                    sendUpdateEvent(guess)
+
                     Log.d("File upload", "success, path: $serverUploadDirectoryPath$fileName, response is: $plastic")
                     showToast("File uploaded successfully, response is: $plastic")
                 } else {
@@ -88,12 +94,12 @@ class UploadUtility(activity: Activity) {
             toggleProgressDialog(false)
         }.start()
 
-        var waiting = 0
-        while(plastic == "") {
-            waiting++
+        //var waiting = 0
+        //while(plastic == "") {
+        //    waiting++
             //Log.d("I", "waiting")
-        }
-        return guess
+        //}
+        //return guess
     }
 
     // url = file path or whatever suitable URL you want.

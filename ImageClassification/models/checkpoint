@@ -1,2 +1,2 @@
-model_checkpoint_path: "testEffNet.ckpt"
-all_model_checkpoint_paths: "testEffNet.ckpt"
+model_checkpoint_path: "myModelcp1.ckpt"
+all_model_checkpoint_paths: "myModelcp1.ckpt"

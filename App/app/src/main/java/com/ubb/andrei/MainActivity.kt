@@ -26,6 +26,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.ubb.andrei.domain.ServerResponse
 import com.ubb.andrei.domain.plasticList
+import com.ubb.andrei.utils.IObserver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -34,12 +35,13 @@ import okhttp3.*
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.ArrayList
 
 
 private const val FILE_NAME = "photo.jpg"
 private lateinit var photoFile: File
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), IObserver {
 
     private val REQUEST_PERMISSION = 10
     val pList = plasticList
@@ -229,23 +231,24 @@ class MainActivity : AppCompatActivity() {
         var result = ""
 
         runBlocking {
-            // getResultAsync(this, photoName)
+            getResultAsync(this, photoName)
             //launch { DoAsync(photoName)}
         }
 
         Log.d("C", photoGuess.toString())
-        createNewResultPopup()
+        //createNewResultPopup()
 
     }
 
     suspend private fun getResultAsync(scope: CoroutineScope, photoName: String) = scope.async {
+
         launch {
             if(isTaken == true) {
-                photoGuess = UploadUtility(this@MainActivity).uploadFile(stringPhoto!!, photoName)
+                UploadUtility(this@MainActivity, arrayListOf(this@MainActivity)).uploadFile(stringPhoto!!, photoName)
                 //UploadUtility(this).uploadFile(stringPhoto!!)
             }
             if(isTaken == false){
-                photoGuess = UploadUtility(this@MainActivity).uploadFile(uriPhoto!!, photoName)
+                UploadUtility(this@MainActivity, arrayListOf(this@MainActivity)).uploadFile(uriPhoto!!, photoName)
                 //UploadUtility(this).uploadFile(uriPhoto!!)
             }
         }
@@ -259,7 +262,7 @@ class MainActivity : AppCompatActivity() {
         return File.createTempFile(fileName, ".jpg", storageDirectory)
     }
 
-    fun createNewResultPopup(){
+    public fun createNewResultPopup(){
         dialogBuilder = AlertDialog.Builder(this)
         var resultPopupView = layoutInflater.inflate(R.layout.result_popup, null)
 
@@ -310,8 +313,19 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+
         dialogBuilder.setView(resultPopupView)
         dialog = dialogBuilder.create()
         dialog.show()
+
+
+    }
+
+    override fun update(guess: ServerResponse) {0
+        photoGuess = guess
+        Log.d("M", photoGuess.toString())
+        this@MainActivity.runOnUiThread {
+            createNewResultPopup()
+        }
     }
 }

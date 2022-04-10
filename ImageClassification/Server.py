@@ -54,7 +54,7 @@ def Classify_Photo(filePath):
     print(tempPred)
     pred = [a + b for a, b in zip(pred, tempPred)]
 
-    tempPred = imageClassification.Classify_Photo_EfficientNet(filePath, False)
+    #tempPred = imageClassification.Classify_Photo_EfficientNet(filePath, False)
     print("EffNet: ")
     print(tempPred)
     pred = [a + b for a, b in zip(pred, tempPred)]

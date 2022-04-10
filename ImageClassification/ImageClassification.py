@@ -10,17 +10,18 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.optimizers import RMSprop
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.applications.inception_v3 import InceptionV3
+from tensorflow.keras.models import Sequential
 import efficientnet.tfkeras as efn
 
 import numpy as np
-import datetime
+from datetime import datetime
 import os
 import cv2
 import matplotlib.pyplot as plt
 
 # constants
 IMAGE_SIZE = [224, 224]
-EPOCHS = 10
+EPOCHS = 25
 PLOT = True
 PRINT = True
 
@@ -34,6 +35,7 @@ class ImageClassification:
         self._checkpoint_inception_path = "models/justTest.ckpt"
         self._checkpoint_vgg19_path = "models/vgg19cp1.ckpt"
         self._checkpoint_effnet_path = "models/effnetcp1.ckpt"
+        self._checkpoint_myModel_path = "models/myModelcp1.ckpt"
         self._checkpoint_dir = "models"
         self._file_dir = "files"
 
@@ -43,11 +45,15 @@ class ImageClassification:
 
         self._efficientNet_model = None
         self._vgg19_model = None
+        self._my_model = None
         self.init_Vgg19()
         self.init_EfficientNet()
 
+        self.init_MyModel()
+        # self.init_MyModel2()
+
     def Load_Models(self):
-        self._efficientNet_model.load_weights(self._checkpoint_effnet_path)
+        #self._efficientNet_model.load_weights(self._checkpoint_effnet_path)
         self._vgg19_model.load_weights(self._checkpoint_vgg19_path)
 
     def Read_Images(self):
@@ -121,10 +127,155 @@ class ImageClassification:
                                          loss='sparse_categorical_crossentropy',
                                          metrics=['accuracy'])
 
+    def init_MyModel(self):
+        num_classes = 8
+        self._my_model = Sequential([
+            # layers.Rescaling(1. / 255, input_shape=(img_height, img_width, 3)),
+            Sequential([layers.Conv2D(16, 3, padding='same', activation='relu')] * 15),
+            layers.AveragePooling2D((2, 2), 2),
+            Sequential([layers.Conv2D(32, 3, padding='same', activation='relu')] * 15),
+            layers.AveragePooling2D((2, 2), 2),
+            Sequential([layers.Conv2D(64, 3, padding='same', activation='relu')] * 15),
+            layers.AveragePooling2D((2, 2), 2),
+            layers.Flatten(),
+            layers.Dense(128, activation='relu'),
+            #layers.Dropout(0.5),
+            layers.Dense(num_classes, activation='sigmoid')])
+
+        self._my_model.compile(
+            loss='sparse_categorical_crossentropy',
+            optimizer="adam",
+            metrics=['accuracy'])
+
+    def init_MyModel2(self):
+        model = Sequential()
+        model.add(layers.Conv2D(16, (3, 3)))
+        model.add(layers.Activation('relu'))
+        model.add(layers.MaxPooling2D(pool_size=(2, 2)))
+
+        model.add(layers.Conv2D(32, (3, 3)))
+        model.add(layers.Activation('relu'))
+        model.add(layers.MaxPooling2D(pool_size=(2, 2)))
+
+        model.add(layers.Conv2D(64, (3, 3)))
+        model.add(layers.Activation('relu'))
+        model.add(layers.MaxPooling2D(pool_size=(2, 2)))
+
+        model.add(Flatten())
+        model.add(Dense(64))
+        model.add(layers.Activation('relu'))
+        model.add(Dropout(0.5))
+        model.add(Dense(8))
+        model.add(layers.Activation('sigmoid'))
+
+        self._my_model = model
+
+        model.compile(loss='sparse_categorical_crossentropy',
+                      optimizer='rmsprop',
+                      metrics=['accuracy'])
+
+    def Train_MyModel2(self):
+        train_datagen = ImageDataGenerator(
+            rotation_range=90,
+            width_shift_range=0.2,
+            height_shift_range=0.2,
+            rescale=1. / 255,
+            shear_range=0.2,
+            zoom_range=0.2,
+            horizontal_flip=True,
+            fill_mode='nearest')
+
+        validator_datagen = ImageDataGenerator(rescale=1.0 / 255.)
+
+        train_generator = train_datagen.flow_from_directory(self._train_path, batch_size=16, class_mode='sparse',
+                                                            target_size=IMAGE_SIZE)
+
+        validation_generator = validator_datagen.flow_from_directory(self._validator_path, batch_size=16,
+                                                                     class_mode='sparse',
+                                                                     target_size=IMAGE_SIZE)
+
+        train_y = train_generator.classes
+        validator_y = validation_generator.classes
+
+        # early_stop = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=5)
+        # Early stopping to avoid overfitting of model
+        cp_callback = ModelCheckpoint(filepath=self._checkpoint_myModel_path, save_weights_only=True, verbose=1)
+        # Create a callback that saves the model's weights
+
+        history = self._my_model.fit(train_generator,
+                                     validation_data=validation_generator,
+                                     steps_per_epoch=16,
+                                     callbacks=[cp_callback],
+                                     epochs=EPOCHS)
+
+        if PLOT:
+            # accuracies
+            plt.plot(history.history['accuracy'], label='train acc')
+            plt.plot(history.history['val_accuracy'], label='val acc')
+            plt.legend()
+            plt.savefig(self._file_dir + '/myModel2-acc-noEarlyStopping-' + str(
+                datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + '.png')
+            plt.show()
+
+            # loss
+            plt.plot(history.history['loss'], label='train loss')
+            plt.plot(history.history['val_loss'], label='val loss')
+            plt.legend()
+            plt.savefig(self._file_dir + '/myModel2-loss-noEarlyStopping-' + str(
+                datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + '.png')
+            plt.show()
+
+    def Train_MyModel(self):
+        train_datagen = ImageDataGenerator(rescale=1. / 255, rotation_range=90, width_shift_range=0.2,
+                                           height_shift_range=0.2, shear_range=0.2, zoom_range=0.2)
+
+        validator_datagen = ImageDataGenerator(rescale=1.0 / 255.)
+
+        train_generator = train_datagen.flow_from_directory(self._train_path, batch_size=16, class_mode='sparse',
+                                                            target_size=IMAGE_SIZE)
+
+        validation_generator = validator_datagen.flow_from_directory(self._validator_path, batch_size=16,
+                                                                     class_mode='sparse',
+                                                                     target_size=IMAGE_SIZE)
+
+        train_y = train_generator.classes
+        validator_y = validation_generator.classes
+
+        if PRINT:
+            # print(self._my_model.summary())
+            pass
+
+        # early_stop = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=5)
+        # Early stopping to avoid overfitting of model
+        cp_callback = ModelCheckpoint(filepath=self._checkpoint_myModel_path, save_weights_only=True, verbose=1)
+        # Create a callback that saves the model's weights
+
+        history = self._my_model.fit(train_generator,
+                                     validation_data=validation_generator,
+                                     steps_per_epoch=16,
+                                     callbacks=[cp_callback],
+                                     epochs=EPOCHS)
+
+        if PLOT:
+            # accuracies
+            plt.plot(history.history['accuracy'], label='train acc')
+            plt.plot(history.history['val_accuracy'], label='val acc')
+            plt.legend()
+            plt.savefig(self._file_dir + '/myModel-acc-noEarlyStopping-' + str(
+                datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + '.png')
+            plt.show()
+
+            # loss
+            plt.plot(history.history['loss'], label='train loss')
+            plt.plot(history.history['val_loss'], label='val loss')
+            plt.legend()
+            plt.savefig(self._file_dir + '/myModel-loss-noEarlyStopping-' + str(
+                datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + '.png')
+            plt.show()
+
     def Train_VGG19(self):
-        train_datagen = ImageDataGenerator(rescale=1. / 255, rotation_range=40, width_shift_range=0.2,
-                                           height_shift_range=0.2, shear_range=0.2, zoom_range=0.2,
-                                           horizontal_flip=True)
+        train_datagen = ImageDataGenerator(rescale=1. / 255, rotation_range=90, width_shift_range=0.2,
+                                           height_shift_range=0.2, shear_range=0.2, zoom_range=0.2)
         validator_datagen = ImageDataGenerator(rescale=1. / 255)
 
         training_set = train_datagen.flow_from_directory(self._train_path,
@@ -167,14 +318,16 @@ class ImageClassification:
             plt.plot(history.history['accuracy'], label='train acc')
             plt.plot(history.history['val_accuracy'], label='val acc')
             plt.legend()
-            plt.savefig(self._file_dir + '/vgg-acc-' + str(datetime.date.today()) + '.png')
+            plt.savefig(self._file_dir + '/vgg-acc-' + str(
+                datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + '.png')
             plt.show()
 
             # loss
             plt.plot(history.history['loss'], label='train loss')
             plt.plot(history.history['val_loss'], label='val loss')
             plt.legend()
-            plt.savefig(self._file_dir + '/vgg-loss-' + str(datetime.date.today()) + '.png')
+            plt.savefig(self._file_dir + '/vgg-loss-' + str(
+                datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + '.png')
             plt.show()
 
     def Train_Inception(self):
@@ -267,15 +420,35 @@ class ImageClassification:
             plt.plot(history.history['accuracy'], label='train acc')
             plt.plot(history.history['val_accuracy'], label='val acc')
             plt.legend()
-            plt.savefig(self._file_dir + '/effnet-acc-' + str(datetime.date.today()) + '.png')
+            plt.savefig(self._file_dir + '/effnet-acc-' + str(
+                datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + '.png')
             plt.show()
 
             # loss
             plt.plot(history.history['loss'], label='train loss')
             plt.plot(history.history['val_loss'], label='val loss')
             plt.legend()
-            plt.savefig(self._file_dir + '/effnet-loss-' + str(datetime.date.today()) + '.png')
+            plt.savefig(self._file_dir + '/effnet-loss-' + str(
+                datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + '.png')
             plt.show()
+
+    def Test_MyModel(self):
+        self._my_model.load_weights(self._checkpoint_myModel_path)
+
+        for img in os.listdir(self._test_path):
+            img_name = img
+            img = image.load_img(self._test_path + "/" + img, target_size=IMAGE_SIZE)
+            plt.imshow(img)
+            plt.show()
+            x = image.img_to_array(img)
+            x = np.expand_dims(x, axis=0)
+            images = np.vstack([x])
+            pred = self._my_model.predict(images, batch_size=1)
+            print("Guessed val: " + str(img_name) + " " + str(pred))
+            ct = 0
+            for i in pred[0]:
+                ct = ct + 1
+                print(str(ct) + ' - {:.2f}%'.format(i * 100))
 
     def Test_EfficientNet(self):
         self._efficientNet_model.load_weights(self._checkpoint_effnet_path)
@@ -360,6 +533,9 @@ if __name__ == '__main__':
     while True:
         mode = 0
         ic = ImageClassification()
+        ic.Train_MyModel()
+        # ic.Train_MyModel2()
+        break
         try:
             mode = int(input('Input:'))
         except ValueError:
@@ -381,5 +557,9 @@ if __name__ == '__main__':
             file = "ServerPhotos/2022-03-23T12:53:57.541.jpg"
             ic.Classify_Photo_VGG19(file, True)
             ic.Classify_Photo_EfficientNet(file, True)
+        elif mode == 7:
+            ic.Train_MyModel()
+            # ic.Train_MyModel2()
+            ic.Test_MyModel()
         elif mode == 0:
             break
