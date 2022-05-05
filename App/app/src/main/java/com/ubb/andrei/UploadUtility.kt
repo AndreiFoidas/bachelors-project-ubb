@@ -10,6 +10,7 @@ import com.google.gson.Gson
 import com.ubb.andrei.domain.ServerResponse
 import com.ubb.andrei.utils.IObservable
 import com.ubb.andrei.utils.IObserver
+import com.ubb.andrei.utils.URIPathHelper
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -19,8 +20,8 @@ class UploadUtility(activity: Activity, override val observers: ArrayList<IObser
 
     var activity = activity;
     var dialog: ProgressDialog? = null
-    // var serverURL: String = "http://192.168.0.148:420"
-    var serverURL: String = "http://10.0.2.2:5000"
+    var serverURL: String = "http://192.168.0.148:420"
+    // var serverURL: String = "http://10.0.2.2:5000"
     var serverUploadDirectoryPath: String = "E:\\Facultate\\Licenta\\bachelors-project-ubb\\ServerPhotos"
     val client = OkHttpClient()
     lateinit var guess : ServerResponse
@@ -35,12 +36,11 @@ class UploadUtility(activity: Activity, override val observers: ArrayList<IObser
     }
 
     fun uploadFile(sourceFile: File, uploadedFileName: String? = null) {
-        var plastic = ""
         Thread {
             val mimeType = getMimeType(sourceFile);
             if (mimeType == null) {
                 Log.e("file error", "Not able to get mime type")
-                guess = ServerResponse(-1, "Error", 0.0, "Fail")
+                guess = ServerResponse(-1, "Error", 0.0, "Fail", "")
                 return@Thread
             }
             val fileName: String = uploadedFileName ?: sourceFile.name
@@ -65,41 +65,53 @@ class UploadUtility(activity: Activity, override val observers: ArrayList<IObser
                     val jsonString = response.body!!.string()
                     val gson = Gson()
                     guess = gson.fromJson(jsonString, ServerResponse::class.java)
-                    plastic = guess.name
                 }
 
-                Log.d("A", plastic)
-
-
                 if (response.isSuccessful) {
-
                     Log.d("Y", guess.toString())
                     sendUpdateEvent(guess)
 
-                    Log.d("File upload", "success, path: $serverUploadDirectoryPath$fileName, response is: $plastic")
-                    showToast("File uploaded successfully, response is: $plastic")
+                    Log.d("File upload", "success, path: $serverUploadDirectoryPath$fileName, response is: $guess.name")
+                    showToast("File uploaded successfully, response is: $guess.name")
                 } else {
                     Log.e("File upload", "failed")
                     showToast("File uploading failed")
-                    plastic = "error"
                 }
-
 
             } catch (ex: Exception) {
                 ex.printStackTrace()
                 Log.e("File upload", "failed")
                 showToast("File uploading failed")
-                guess = ServerResponse(-1, "Error", 0.0, "Fail")
+                guess = ServerResponse(-1, "Error", 0.0, "Fail", "")
             }
             toggleProgressDialog(false)
         }.start()
+    }
 
-        //var waiting = 0
-        //while(plastic == "") {
-        //    waiting++
-            //Log.d("I", "waiting")
-        //}
-        //return guess
+    fun uploadRecyclingInfo(correctPlastic: String, filename: String) {
+        Log.d("U", "$correctPlastic - $filename")
+        Thread {
+            try {
+                val requestBody: RequestBody = FormBody.Builder()
+                    .add("plastic", correctPlastic)
+                    .add("filename", filename)
+                    .build()
+
+                val request: Request = Request.Builder().url("$serverURL/uploadInfo")
+                    .post(requestBody).build()
+
+                val response: Response = client.newCall(request).execute()
+
+                if (response.isSuccessful) {
+                    Log.d("Info upload", "success: $correctPlastic, $filename")
+                } else {
+                    Log.e("Info upload", "failed")
+                }
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+                Log.e("File upload", "failed")
+            }
+        }.start()
     }
 
     // url = file path or whatever suitable URL you want.

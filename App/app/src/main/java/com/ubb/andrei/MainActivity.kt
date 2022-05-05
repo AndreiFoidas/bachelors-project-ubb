@@ -15,8 +15,6 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
-import android.view.Gravity
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -27,15 +25,11 @@ import androidx.core.content.FileProvider
 import com.ubb.andrei.domain.ServerResponse
 import com.ubb.andrei.domain.plasticList
 import com.ubb.andrei.utils.IObserver
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import com.ubb.andrei.utils.URIPathHelper
 import okhttp3.*
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.ArrayList
 
 
 private const val FILE_NAME = "photo.jpg"
@@ -59,13 +53,16 @@ class MainActivity : AppCompatActivity(), IObserver {
      var photoGuess : ServerResponse? = null
 
     //Result Popup View
-    var btnMoreInfo: Button? = null
+    var btnRight: Button? = null
     var btnWrong: Button? = null
+    var btnBack: Button? = null
+    var btnThis: Button? = null
     var icon: ImageView? = null
     var txtName: TextView? = null
     var txtRecyclable: TextView? = null
     var txtReusable: TextView? = null
     var plasticSpinner: Spinner? = null
+    var spinnerAdapter: ArrayAdapter<String>? = null
 
     lateinit var dialogBuilder: AlertDialog.Builder
     lateinit var dialog: AlertDialog
@@ -223,38 +220,6 @@ class MainActivity : AppCompatActivity(), IObserver {
         //startActivityForResult(openGalleryIntent, REQUEST_PICK_IMAGE)
     }
 
-    fun buttonUploadPictureClicked(){
-        val currentTime = LocalDateTime.now()
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SSS")
-        val formatted = currentTime.format(formatter)
-        val photoName = "$formatted.jpg"
-        var result = ""
-
-        runBlocking {
-            getResultAsync(this, photoName)
-            //launch { DoAsync(photoName)}
-        }
-
-        Log.d("C", photoGuess.toString())
-        //createNewResultPopup()
-
-    }
-
-    suspend private fun getResultAsync(scope: CoroutineScope, photoName: String) = scope.async {
-
-        launch {
-            if(isTaken == true) {
-                UploadUtility(this@MainActivity, arrayListOf(this@MainActivity)).uploadFile(stringPhoto!!, photoName)
-                //UploadUtility(this).uploadFile(stringPhoto!!)
-            }
-            if(isTaken == false){
-                UploadUtility(this@MainActivity, arrayListOf(this@MainActivity)).uploadFile(uriPhoto!!, photoName)
-                //UploadUtility(this).uploadFile(uriPhoto!!)
-            }
-        }
-        Log.d("B", photoGuess.toString())
-    }
-
     private fun getPhotoFile(fileName: String): File {
         //Use 'getExternalFilesDir' on Context to access package-specific directories
         val storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
@@ -262,9 +227,35 @@ class MainActivity : AppCompatActivity(), IObserver {
         return File.createTempFile(fileName, ".jpg", storageDirectory)
     }
 
-    public fun createNewResultPopup(){
+    fun buttonUploadPictureClicked(){
+        val currentTime = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SSS")
+        val formatted = currentTime.format(formatter)
+        val photoName = "$formatted.jpg"
+        var result = ""
+
+        if(isTaken == true) {
+            UploadUtility(this@MainActivity, arrayListOf(this@MainActivity)).uploadFile(stringPhoto!!, photoName)
+            //UploadUtility(this).uploadFile(stringPhoto!!)
+        }
+        if(isTaken == false){
+            UploadUtility(this@MainActivity, arrayListOf(this@MainActivity)).uploadFile(uriPhoto!!, photoName)
+            //UploadUtility(this).uploadFile(uriPhoto!!)
+        }
+
+        Log.d("C", photoGuess.toString())
+        //createNewResultPopup()
+
+    }
+
+    fun createNewResultPopup(){
         dialogBuilder = AlertDialog.Builder(this)
         var resultPopupView = layoutInflater.inflate(R.layout.result_popup, null)
+        var selectionSpinnerData = "SELECT PLASTIC"
+
+        var spinnerData = arrayListOf<String>("SELECT PLASTIC", "1 PET", "2 HDPE", "3 PVC", "4 LDPE", "5 PP", "6 PS", "7 OTHER", "8 NOT PLASTIC")
+        spinnerAdapter = ArrayAdapter(applicationContext, android.R.layout.simple_spinner_dropdown_item, spinnerData)
+        spinnerAdapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
         icon = resultPopupView.findViewById<ImageView>(R.id.icon)
         txtName = resultPopupView.findViewById<TextView>(R.id.txtName)
@@ -272,14 +263,54 @@ class MainActivity : AppCompatActivity(), IObserver {
         txtReusable = resultPopupView.findViewById<TextView>(R.id.txtReusable)
         plasticSpinner = resultPopupView.findViewById<Spinner>(R.id.plasticSpinner)
         btnWrong = resultPopupView.findViewById<Button>(R.id.btnWrong)
-        btnMoreInfo = resultPopupView.findViewById<Button>(R.id.btnMoreInfo)
+        btnRight = resultPopupView.findViewById<Button>(R.id.btnRight)
+        btnBack = resultPopupView.findViewById<Button>(R.id.btnBack)
+        btnThis = resultPopupView.findViewById<Button>(R.id.btnThis)
+
+        plasticSpinner?.adapter = spinnerAdapter
+        plasticSpinner?.onItemSelectedListener = object:AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                //Toast.makeText(applicationContext, "You selected " + spinnerAdapter?.getItem(position), Toast.LENGTH_SHORT).show()
+                selectionSpinnerData = spinnerAdapter?.getItem(position)!!
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                //TODO("Not yet implemented")
+            }
+
+        }
 
         btnWrong?.setOnClickListener {
             plasticSpinner?.visibility = View.VISIBLE
+            btnWrong?.visibility = View.INVISIBLE
+            btnRight?.visibility = View.INVISIBLE
+            btnBack?.visibility = View.VISIBLE
+            btnThis?.visibility = View.VISIBLE
         }
 
-        btnMoreInfo?.setOnClickListener {
+        btnRight?.setOnClickListener {
+            if (photoGuess != null)
+                UploadUtility(this@MainActivity, arrayListOf(this@MainActivity)).uploadRecyclingInfo(photoGuess?.name!!, photoGuess?.filename!!)
+            // send to server
+        }
 
+        btnBack?.setOnClickListener {
+            plasticSpinner?.visibility = View.INVISIBLE
+            btnWrong?.visibility = View.VISIBLE
+            btnRight?.visibility = View.VISIBLE
+            btnBack?.visibility = View.INVISIBLE
+            btnThis?.visibility = View.INVISIBLE
+        }
+
+        btnThis?.setOnClickListener {
+            if (photoGuess != null && selectionSpinnerData != "SELECT PLASTIC" && selectionSpinnerData != "")
+                UploadUtility(this@MainActivity, arrayListOf(this@MainActivity)).uploadRecyclingInfo(selectionSpinnerData, photoGuess?.filename!!)
+            // send to server
         }
 
         plasticSpinner?.visibility = View.INVISIBLE
@@ -313,12 +344,9 @@ class MainActivity : AppCompatActivity(), IObserver {
             }
         }
 
-
         dialogBuilder.setView(resultPopupView)
         dialog = dialogBuilder.create()
         dialog.show()
-
-
     }
 
     override fun update(guess: ServerResponse) {0

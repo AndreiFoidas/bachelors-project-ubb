@@ -53,7 +53,7 @@ class ImageClassification:
         # self.init_MyModel2()
 
     def Load_Models(self):
-        #self._efficientNet_model.load_weights(self._checkpoint_effnet_path)
+        self._efficientNet_model.load_weights(self._checkpoint_effnet_path)
         self._vgg19_model.load_weights(self._checkpoint_vgg19_path)
 
     def Read_Images(self):
@@ -116,14 +116,14 @@ class ImageClassification:
 
         x = base_model.output
         x = Flatten()(x)
-        x = Dense(1024, activation="relu")(x)
-        x = Dropout(0.5)(x)
+        #x = Dense(1024, activation="relu")(x)
+        #x = Dropout(0.5)(x)
 
-        # Add a final sigmoid layer with 1 node for classification output
-        predictions = Dense(8, activation="sigmoid")(x)
+        # Add a final sigmoid layer with 8 nodes for classification output
+        predictions = Dense(8, activation="softmax")(x)
         self._efficientNet_model = Model(base_model.input, predictions)
 
-        self._efficientNet_model.compile(optimizer=RMSprop(lr=0.0001, decay=1e-6),
+        self._efficientNet_model.compile(optimizer=RMSprop(learning_rate=0.0001, decay=1e-6),
                                          loss='sparse_categorical_crossentropy',
                                          metrics=['accuracy'])
 
@@ -139,7 +139,7 @@ class ImageClassification:
             layers.AveragePooling2D((2, 2), 2),
             layers.Flatten(),
             layers.Dense(128, activation='relu'),
-            #layers.Dropout(0.5),
+            # layers.Dropout(0.5),
             layers.Dense(num_classes, activation='sigmoid')])
 
         self._my_model.compile(
@@ -276,6 +276,7 @@ class ImageClassification:
     def Train_VGG19(self):
         train_datagen = ImageDataGenerator(rescale=1. / 255, rotation_range=90, width_shift_range=0.2,
                                            height_shift_range=0.2, shear_range=0.2, zoom_range=0.2)
+
         validator_datagen = ImageDataGenerator(rescale=1. / 255)
 
         training_set = train_datagen.flow_from_directory(self._train_path,
@@ -387,14 +388,15 @@ class ImageClassification:
             plt.show()
 
     def Train_EfficientNet(self):
-        train_datagen = ImageDataGenerator(rescale=1. / 255.)
+        train_datagen = ImageDataGenerator(rescale=1. / 255, rotation_range=90, width_shift_range=0.2,
+                                           height_shift_range=0.2, shear_range=0.2, zoom_range=0.2)
 
         validator_datagen = ImageDataGenerator(rescale=1.0 / 255.)
 
-        train_generator = train_datagen.flow_from_directory(self._train_path, batch_size=20, class_mode='sparse',
+        train_generator = train_datagen.flow_from_directory(self._train_path, batch_size=32, class_mode='sparse',
                                                             target_size=IMAGE_SIZE)
 
-        validation_generator = validator_datagen.flow_from_directory(self._validator_path, batch_size=20,
+        validation_generator = validator_datagen.flow_from_directory(self._validator_path, batch_size=32,
                                                                      class_mode='sparse',
                                                                      target_size=IMAGE_SIZE)
 
@@ -409,11 +411,11 @@ class ImageClassification:
         cp_callback = ModelCheckpoint(filepath=self._checkpoint_effnet_path, save_weights_only=True, verbose=1)
         # Create a callback that saves the model's weights
 
-        history = self._efficientNet_model.fit_generator(train_generator,
-                                                         validation_data=validation_generator,
-                                                         steps_per_epoch=20,
-                                                         callbacks=[early_stop, cp_callback],
-                                                         epochs=EPOCHS)
+        history = self._efficientNet_model.fit(train_generator,
+                                               validation_data=validation_generator,
+                                               steps_per_epoch=25,
+                                               callbacks=[early_stop, cp_callback],
+                                               epochs=EPOCHS)
 
         if PLOT:
             # accuracies
@@ -491,6 +493,7 @@ class ImageClassification:
 
         img_name = photo_path
         img = image.load_img(photo_path, target_size=IMAGE_SIZE)
+        #img = img.rotate(270)
         plt.imshow(img)
         plt.show()
         x = image.img_to_array(img)
@@ -512,6 +515,7 @@ class ImageClassification:
 
         img_name = photo_path
         img = image.load_img(photo_path, target_size=IMAGE_SIZE)
+        #img = img.rotate(270)
         plt.imshow(img)
         plt.show()
         x = image.img_to_array(img)
@@ -533,9 +537,6 @@ if __name__ == '__main__':
     while True:
         mode = 0
         ic = ImageClassification()
-        ic.Train_MyModel()
-        # ic.Train_MyModel2()
-        break
         try:
             mode = int(input('Input:'))
         except ValueError:
@@ -554,7 +555,7 @@ if __name__ == '__main__':
             ic.Test_EfficientNet()
         elif mode == 6:
             ic.Load_Models()
-            file = "ServerPhotos/2022-03-23T12:53:57.541.jpg"
+            file = "ServerPhotos/2022-05-04_11-49-35-892.jpg"
             ic.Classify_Photo_VGG19(file, True)
             ic.Classify_Photo_EfficientNet(file, True)
         elif mode == 7:

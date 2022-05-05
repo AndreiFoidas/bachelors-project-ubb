@@ -89,11 +89,37 @@
         app:layout_constraintVertical_bias="0.129" />
 
     <Button
-        android:id="@+id/btnMoreInfo"
+        android:id="@+id/btnBack"
+        android:layout_width="130dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="32dp"
+        android:text="Back"
+        android:visibility="invisible"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/plasticSpinner"
+        app:layout_constraintVertical_bias="0.129" />
+
+    <Button
+        android:id="@+id/btnRight"
         android:layout_width="130dp"
         android:layout_height="60dp"
         android:layout_marginStart="40dp"
-        android:text="YES! More info"
+        android:text="Correct!"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btnWrong"
+        app:layout_constraintTop_toBottomOf="@+id/plasticSpinner"
+        app:layout_constraintVertical_bias="0.129" />
+
+    <Button
+        android:id="@+id/btnThis"
+        android:layout_width="130dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="40dp"
+        android:text="This one!"
+        android:visibility="invisible"
 
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btnWrong"

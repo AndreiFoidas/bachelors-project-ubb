@@ -1,6 +1,5 @@
-package com.ubb.andrei
+package com.ubb.andrei.utils
 
-import android.annotation.SuppressLint
 import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
@@ -9,11 +8,6 @@ import android.os.Build
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
-import android.provider.OpenableColumns
-import android.text.TextUtils
-import android.util.Log
-import java.io.File
-import java.io.FileOutputStream
 
 
 class URIPathHelper {

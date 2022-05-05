@@ -40,11 +40,28 @@ def post_upload_photo():
         name=guessedPlastic,
         percentage=maxValue,
         result="success",
+        filename=file.filename,
+    )
+
+@api.route('/uploadInfo', methods=['POST'])
+def post_upload_info():
+    print("Got something")
+    plastic = request.values["plastic"]
+    filename = request.values["filename"]
+    print(plastic + " " + filename)
+
+    new_filename = "G" + plastic[0] + "-D" + filename
+    print(new_filename)
+
+    os.rename(UPLOAD_FOLDER + "/" + filename, UPLOAD_FOLDER + "/" + new_filename)
+
+    return jsonify(
+        status="success",
     )
 
 def Classify_Photo(filePath):
     global imageClassification, ocr
-    plastics = ["1_PET", "2_HDPE", "3_PVC", "4_LDPE", "5_PP", "6_PS", "7_OTHER", "8_NOPLASTIC"]
+    plastics = ["1 PET", "2 HDPE", "3 PVC", "4 LDPE", "5 PP", "6 PS", "7 OTHER", "8 NOT PLASTIC"]
     print(filePath)
     pred = [0.0] * 8
     tempPred = [0.0] * 8
@@ -54,13 +71,13 @@ def Classify_Photo(filePath):
     print(tempPred)
     pred = [a + b for a, b in zip(pred, tempPred)]
 
-    #tempPred = imageClassification.Classify_Photo_EfficientNet(filePath, False)
+    tempPred = imageClassification.Classify_Photo_EfficientNet(filePath, False)
     print("EffNet: ")
     print(tempPred)
     pred = [a + b for a, b in zip(pred, tempPred)]
 
-    #tempPred = ocr.Classify_Photo_OCR(filePath, True)
-    tempPred = [0.0] * 8
+    tempPred = ocr.Classify_Photo_OCR(filePath, True)
+    #tempPred = [0.0] * 8
     print("OCR: ")
     print(tempPred)
     pred = [a + b for a, b in zip(pred, tempPred)]
@@ -87,8 +104,8 @@ def Start_Server():
     ocr = OCR()
     imageClassification.Load_Models()
 
-    # api.run("192.168.0.148", port=420)
-    api.run()
+    api.run("192.168.0.148", port=420)
+    # api.run()
 
 
 if __name__ == '__main__':
