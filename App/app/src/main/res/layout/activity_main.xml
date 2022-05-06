@@ -15,36 +15,61 @@
         android:gravity="center_horizontal"
         android:layout_height="60dp" >
 
-    <Button
-        android:id="@+id/btnTakePicture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
-        android:layout_gravity="center_horizontal"
-        android:text="Take Picture" />
+        <Button
+            android:id="@+id/btnTakePicture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:layout_gravity="center_horizontal"
+            android:text="Take Picture" />
 
-    <Button
-        android:id="@+id/btnOpenGallery"
-        android:layout_width="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="Open Gallery" />
+        <Button
+            android:id="@+id/btnOpenGallery"
+            android:layout_width="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Open Gallery" />
     </LinearLayout>
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="450dp"
+        android:layout_height="400dp"
         android:layout_marginTop="15dp"
         android:contentDescription="Your picture"
         android:src="@mipmap/ic_launcher" />
+
+    <LinearLayout
+        android:id="@+id/resultLayout"
+        android:layout_width="match_parent"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="0dp"
+        android:orientation="horizontal"
+        android:visibility="invisible"
+        android:layout_height="60dp" >
+
+        <TextView
+            android:id="@+id/textPlasticMain"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="PType:" />
+
+        <Button
+            android:id="@+id/btnMoreInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_gravity="center"
+            android:text="More Info" />
+    </LinearLayout>
 
     <Button
         android:id="@+id/btnUploadPicture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="5dp"
         android:layout_gravity="center_horizontal"
         android:enabled="false"
         android:text="Upload Picture" />

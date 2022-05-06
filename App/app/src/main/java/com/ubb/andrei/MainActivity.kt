@@ -13,6 +13,7 @@ import android.media.ExifInterface
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.provider.AlarmClock.EXTRA_MESSAGE
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
@@ -45,6 +46,9 @@ class MainActivity : AppCompatActivity(), IObserver {
     var btnOpenGallery: Button? = null
     var btnUploadPicture: Button? = null
     var imageView: ImageView? = null
+    var btnMoreInfo: Button? = null
+    var textPlasticMain: TextView? = null
+    var resultLayout: LinearLayout? = null
 
     var stringPhoto : String? = null
     var uriPhoto: Uri? = null
@@ -84,10 +88,17 @@ class MainActivity : AppCompatActivity(), IObserver {
         btnOpenGallery = findViewById<Button>(R.id.btnOpenGallery)
         btnUploadPicture = findViewById<Button>(R.id.btnUploadPicture)
         imageView = findViewById<ImageView>(R.id.imageView)
+        btnMoreInfo = findViewById<Button>(R.id.btnMoreInfo)
+        textPlasticMain = findViewById<TextView>(R.id.textPlasticMain)
+        resultLayout = findViewById<LinearLayout>(R.id.resultLayout)
 
         btnTakePicture?.setOnClickListener {
             buttonTakePictureClicked()
-            //createNewResultPopup()
+            /* //for testing
+            photoGuess = ServerResponse(1, "Error", 0.0, "Fail", "")
+            this@MainActivity.runOnUiThread {
+                createNewResultPopup()
+            }*/
         }
 
         btnOpenGallery?.setOnClickListener {
@@ -95,10 +106,12 @@ class MainActivity : AppCompatActivity(), IObserver {
         }
 
         btnUploadPicture?.setOnClickListener {
-
             buttonUploadPictureClicked()
         }
 
+        btnMoreInfo?.setOnClickListener {
+            buttonMoreInfoClicked()
+        }
     }
 
     override fun onResume() {
@@ -204,12 +217,10 @@ class MainActivity : AppCompatActivity(), IObserver {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         photoFile = getPhotoFile(FILE_NAME)
 
-
         val fileProvider = FileProvider.getUriForFile(this, "com.ubb.andrei.fileprovider", photoFile)
         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider)
         resultLauncherTakePhoto.launch(takePictureIntent)
         //startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
-
     }
 
     fun buttonOpenGalleryClicked(){
@@ -232,20 +243,13 @@ class MainActivity : AppCompatActivity(), IObserver {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SSS")
         val formatted = currentTime.format(formatter)
         val photoName = "$formatted.jpg"
-        var result = ""
 
         if(isTaken == true) {
             UploadUtility(this@MainActivity, arrayListOf(this@MainActivity)).uploadFile(stringPhoto!!, photoName)
-            //UploadUtility(this).uploadFile(stringPhoto!!)
         }
         if(isTaken == false){
             UploadUtility(this@MainActivity, arrayListOf(this@MainActivity)).uploadFile(uriPhoto!!, photoName)
-            //UploadUtility(this).uploadFile(uriPhoto!!)
         }
-
-        Log.d("C", photoGuess.toString())
-        //createNewResultPopup()
-
     }
 
     fun createNewResultPopup(){
@@ -275,14 +279,10 @@ class MainActivity : AppCompatActivity(), IObserver {
                 position: Int,
                 id: Long
             ) {
-                //Toast.makeText(applicationContext, "You selected " + spinnerAdapter?.getItem(position), Toast.LENGTH_SHORT).show()
                 selectionSpinnerData = spinnerAdapter?.getItem(position)!!
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                //TODO("Not yet implemented")
-            }
-
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
         btnWrong?.setOnClickListener {
@@ -296,7 +296,9 @@ class MainActivity : AppCompatActivity(), IObserver {
         btnRight?.setOnClickListener {
             if (photoGuess != null)
                 UploadUtility(this@MainActivity, arrayListOf(this@MainActivity)).uploadRecyclingInfo(photoGuess?.name!!, photoGuess?.filename!!)
-            // send to server
+            resultLayout?.visibility = View.VISIBLE
+            textPlasticMain?.text = "Plastic: ${photoGuess?.name!!}"
+            dialog.dismiss()
         }
 
         btnBack?.setOnClickListener {
@@ -310,7 +312,9 @@ class MainActivity : AppCompatActivity(), IObserver {
         btnThis?.setOnClickListener {
             if (photoGuess != null && selectionSpinnerData != "SELECT PLASTIC" && selectionSpinnerData != "")
                 UploadUtility(this@MainActivity, arrayListOf(this@MainActivity)).uploadRecyclingInfo(selectionSpinnerData, photoGuess?.filename!!)
-            // send to server
+            resultLayout?.visibility = View.VISIBLE
+            textPlasticMain?.text = "Plastic: $selectionSpinnerData"
+            dialog.dismiss()
         }
 
         plasticSpinner?.visibility = View.INVISIBLE
@@ -321,7 +325,7 @@ class MainActivity : AppCompatActivity(), IObserver {
             val id = photoGuess!!.nr
 
             if (id != -1) {
-                var plastic = pList.data[id]
+                val plastic = pList.data[id]
 
                 Log.d("Z", plastic.toString())
 
@@ -349,7 +353,15 @@ class MainActivity : AppCompatActivity(), IObserver {
         dialog.show()
     }
 
-    override fun update(guess: ServerResponse) {0
+    private fun buttonMoreInfoClicked() {
+        val message = textPlasticMain?.text
+        val intent = Intent(this, InfoActivity::class.java).apply {
+            putExtra(EXTRA_MESSAGE, message)
+        }
+        startActivity(intent)
+    }
+
+    override fun update(guess: ServerResponse) {
         photoGuess = guess
         Log.d("M", photoGuess.toString())
         this@MainActivity.runOnUiThread {

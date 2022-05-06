@@ -27,7 +27,6 @@ fun initPlastics(): List<Plastic>{
     plasticList.add(plastic)
     //2 HDPE
     plastic = Plastic(2, "HDPE", "High-density polyethylen",
-    "\n" +
             "HDPE is a rigid type of plastic from which detergent cans, toys and some bags are made, it is the most frequently recycled type of plastic and is considered one of the " +
             "least dangerous forms of plastic. This type of plastic is durable and not affected by direct sunlight, so it is used to make picnic tables, trash cans, benches and other " +
             "products that require durability. \n\nHDPE products are reusable and recyclable.",

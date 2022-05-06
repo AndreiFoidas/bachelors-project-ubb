@@ -76,8 +76,8 @@ def Classify_Photo(filePath):
     print(tempPred)
     pred = [a + b for a, b in zip(pred, tempPred)]
 
-    tempPred = ocr.Classify_Photo_OCR(filePath, True)
-    #tempPred = [0.0] * 8
+    #tempPred = ocr.Classify_Photo_OCR(filePath, True)
+    tempPred = [0.0] * 8
     print("OCR: ")
     print(tempPred)
     pred = [a + b for a, b in zip(pred, tempPred)]
