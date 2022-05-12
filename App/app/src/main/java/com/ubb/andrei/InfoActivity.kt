@@ -37,6 +37,7 @@ class InfoActivity : AppCompatActivity() {
                 textAbbreviation?.text = "${plastic.number} -  ${plastic.abbreviation}"
                 textName?.text = plastic.name
                 textDescription?.text = plastic.description
+                recycleImageView?.setBackgroundResource(plastic.photoPath)
             }
 
         btnInfoBack?.setOnClickListener {

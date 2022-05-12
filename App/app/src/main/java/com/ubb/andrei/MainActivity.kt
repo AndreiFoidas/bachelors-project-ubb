@@ -67,6 +67,8 @@ class MainActivity : AppCompatActivity(), IObserver {
     var txtReusable: TextView? = null
     var plasticSpinner: Spinner? = null
     var spinnerAdapter: ArrayAdapter<String>? = null
+    var linearLayoutButtons1: LinearLayout? = null
+    var linearLayoutButtons2: LinearLayout? = null
 
     lateinit var dialogBuilder: AlertDialog.Builder
     lateinit var dialog: AlertDialog
@@ -94,8 +96,8 @@ class MainActivity : AppCompatActivity(), IObserver {
 
         btnTakePicture?.setOnClickListener {
             buttonTakePictureClicked()
-            /* //for testing
-            photoGuess = ServerResponse(1, "Error", 0.0, "Fail", "")
+             //for testing
+            /*photoGuess = ServerResponse(1, "Error", 0.0, "Fail", "")
             this@MainActivity.runOnUiThread {
                 createNewResultPopup()
             }*/
@@ -261,15 +263,17 @@ class MainActivity : AppCompatActivity(), IObserver {
         spinnerAdapter = ArrayAdapter(applicationContext, android.R.layout.simple_spinner_dropdown_item, spinnerData)
         spinnerAdapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
-        icon = resultPopupView.findViewById<ImageView>(R.id.icon)
-        txtName = resultPopupView.findViewById<TextView>(R.id.txtName)
-        txtRecyclable = resultPopupView.findViewById<TextView>(R.id.txtRecyclable)
-        txtReusable = resultPopupView.findViewById<TextView>(R.id.txtReusable)
-        plasticSpinner = resultPopupView.findViewById<Spinner>(R.id.plasticSpinner)
-        btnWrong = resultPopupView.findViewById<Button>(R.id.btnWrong)
-        btnRight = resultPopupView.findViewById<Button>(R.id.btnRight)
-        btnBack = resultPopupView.findViewById<Button>(R.id.btnBack)
-        btnThis = resultPopupView.findViewById<Button>(R.id.btnThis)
+        icon = resultPopupView.findViewById(R.id.icon)
+        txtName = resultPopupView.findViewById(R.id.txtName)
+        txtRecyclable = resultPopupView.findViewById(R.id.txtRecyclable)
+        txtReusable = resultPopupView.findViewById(R.id.txtReusable)
+        plasticSpinner = resultPopupView.findViewById(R.id.plasticSpinner)
+        btnWrong = resultPopupView.findViewById(R.id.btnWrong)
+        btnRight = resultPopupView.findViewById(R.id.btnRight)
+        btnBack = resultPopupView.findViewById(R.id.btnBack)
+        btnThis = resultPopupView.findViewById(R.id.btnThis)
+        linearLayoutButtons1 = resultPopupView.findViewById(R.id.linearLayoutButtons1)
+        linearLayoutButtons2 = resultPopupView.findViewById(R.id.linearLayoutButtons2)
 
         plasticSpinner?.adapter = spinnerAdapter
         plasticSpinner?.onItemSelectedListener = object:AdapterView.OnItemSelectedListener {
@@ -287,10 +291,8 @@ class MainActivity : AppCompatActivity(), IObserver {
 
         btnWrong?.setOnClickListener {
             plasticSpinner?.visibility = View.VISIBLE
-            btnWrong?.visibility = View.INVISIBLE
-            btnRight?.visibility = View.INVISIBLE
-            btnBack?.visibility = View.VISIBLE
-            btnThis?.visibility = View.VISIBLE
+            linearLayoutButtons1?.visibility = View.GONE
+            linearLayoutButtons2?.visibility = View.VISIBLE
         }
 
         btnRight?.setOnClickListener {
@@ -303,10 +305,8 @@ class MainActivity : AppCompatActivity(), IObserver {
 
         btnBack?.setOnClickListener {
             plasticSpinner?.visibility = View.INVISIBLE
-            btnWrong?.visibility = View.VISIBLE
-            btnRight?.visibility = View.VISIBLE
-            btnBack?.visibility = View.INVISIBLE
-            btnThis?.visibility = View.INVISIBLE
+            linearLayoutButtons1?.visibility = View.VISIBLE
+            linearLayoutButtons2?.visibility = View.GONE
         }
 
         btnThis?.setOnClickListener {
@@ -330,6 +330,7 @@ class MainActivity : AppCompatActivity(), IObserver {
                 Log.d("Z", plastic.toString())
 
                 txtName?.text = "${plastic.number} ${plastic.abbreviation}"
+                icon?.setBackgroundResource(plastic.photoPath)
                 if (plastic.recyclable) {
                     txtRecyclable?.text = "Recyclable: YES"
                     txtRecyclable?.setTextColor(Color.GREEN)
