@@ -86,13 +86,13 @@ class MainActivity : AppCompatActivity(), IObserver {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        btnTakePicture = findViewById<Button>(R.id.btnTakePicture)
-        btnOpenGallery = findViewById<Button>(R.id.btnOpenGallery)
-        btnUploadPicture = findViewById<Button>(R.id.btnUploadPicture)
-        imageView = findViewById<ImageView>(R.id.imageView)
-        btnMoreInfo = findViewById<Button>(R.id.btnMoreInfo)
-        textPlasticMain = findViewById<TextView>(R.id.textPlasticMain)
-        resultLayout = findViewById<LinearLayout>(R.id.resultLayout)
+        btnTakePicture = findViewById(R.id.btnTakePicture)
+        btnOpenGallery = findViewById(R.id.btnOpenGallery)
+        btnUploadPicture = findViewById(R.id.btnUploadPicture)
+        imageView = findViewById(R.id.imageView)
+        btnMoreInfo = findViewById(R.id.btnMoreInfo)
+        textPlasticMain = findViewById(R.id.textPlasticMain)
+        resultLayout = findViewById(R.id.resultLayout)
 
         btnTakePicture?.setOnClickListener {
             //buttonTakePictureClicked()
@@ -155,8 +155,6 @@ class MainActivity : AppCompatActivity(), IObserver {
 
     var resultLauncherTakePhoto = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            //val takenImage = result.data?.extras?.get("data") as Bitmap
-            //val takenImage = BitmapFactory.decodeFile(photoFile.absolutePath)
             val rotatedBitmap = getRotatedBitmap(photoFile.absolutePath)
 
             imageView?.setImageBitmap(rotatedBitmap)
@@ -173,7 +171,6 @@ class MainActivity : AppCompatActivity(), IObserver {
             val pathFromUri = chosenImage?.let { URIPathHelper().getPath(this, it) }
             val takenImage = pathFromUri?.let { getRotatedBitmap(it) }
 
-            //imageView?.setImageURI(chosenImage)
             imageView?.setImageBitmap(takenImage)
             isTaken = false
             uriPhoto = chosenImage
