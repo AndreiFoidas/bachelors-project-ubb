@@ -95,12 +95,12 @@ class MainActivity : AppCompatActivity(), IObserver {
         resultLayout = findViewById<LinearLayout>(R.id.resultLayout)
 
         btnTakePicture?.setOnClickListener {
-            buttonTakePictureClicked()
+            //buttonTakePictureClicked()
              //for testing
-            /*photoGuess = ServerResponse(1, "Error", 0.0, "Fail", "")
+            photoGuess = ServerResponse(1, "Error", 0.0, "Fail", "")
             this@MainActivity.runOnUiThread {
                 createNewResultPopup()
-            }*/
+            }
         }
 
         btnOpenGallery?.setOnClickListener {

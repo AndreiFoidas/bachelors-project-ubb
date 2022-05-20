@@ -1,2 +1,2 @@
-model_checkpoint_path: "effnetcp1.ckpt"
-all_model_checkpoint_paths: "effnetcp1.ckpt"
+model_checkpoint_path: "effnet_lr_kfoldcp5.ckpt"
+all_model_checkpoint_paths: "effnet_lr_kfoldcp5.ckpt"
