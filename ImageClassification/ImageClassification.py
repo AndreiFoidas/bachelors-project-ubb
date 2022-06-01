@@ -35,6 +35,9 @@ class ImageClassification:
         self._validator_path = "../Images/seven_plastics/test"
         self._test_path = "../Images/seven_plastics/manual_test"
 
+        # test accuracy
+        self._all_photos_test_path = "../TestingImages"
+
         # k-cross validations
         self._all_photos_path = "../ImagesAll/seven_plastics"
         self._all_photos_path2 = "../ImagesAll/all_photos"
@@ -427,7 +430,7 @@ class ImageClassification:
 
             history = self._efficientNet_model.fit(training_set,
                                                    validation_data=validator_set,
-                                                   #steps_per_epoch=25,
+                                                   # steps_per_epoch=25,
                                                    callbacks=[early_stop, cp_callback],
                                                    epochs=EPOCHS)
 
@@ -707,6 +710,56 @@ class ImageClassification:
 
         return pred[0]
 
+    def maxelements(self, seq):
+        max_indices = []
+        max_val = seq[0]
+        for i, val in ((i, val) for i, val in enumerate(seq) if val >= max_val):
+            if val == max_val:
+                max_indices.append(i + 1)
+            else:
+                max_val = val
+                max_indices = [i + 1]
+
+        return max_indices
+
+    def Test_All_Models_For_True_Accuracy(self):
+        namePart1 = "models/effnet"
+        namePart2 = "kfoldcp"
+        namePart3 = ".ckpt"
+
+        for i in range(0, 5):
+            name = namePart1 + namePart2 + str(i + 1) + namePart3
+            self._efficientNet_model.load_weights(name)
+            # self._vgg19_model.load_weights(name)
+
+            ctAll = 0
+            ctCorrect = 0
+            ctWrong = 0
+            ctSemi = 0
+
+            print("\nName: " + name + "\n")
+            for img in os.listdir(self._all_photos_test_path):
+                img_name = img
+                img = image.load_img(self._all_photos_test_path + "/" + img, target_size=IMAGE_SIZE)
+                x = image.img_to_array(img)
+                x = np.expand_dims(x, axis=0)
+                images = np.vstack([x])
+                pred = self._efficientNet_model.predict(images, batch_size=1)
+                maxx = self.maxelements(pred[0])
+
+                # print("Guessed val: " + str(img_name) + " " + str(maxx))
+                ctAll += 1
+                if int(img_name[1]) in maxx:
+                    if len(maxx) == 1:
+                        ctCorrect += 1
+                    else:
+                        ctSemi += 1
+                else:
+                    ctWrong += 1
+
+            print("Guessed: " + str(ctCorrect) + ", got wrong: " + str(ctWrong) + ", was close: " + str(
+                ctSemi) + "; out of " + str(ctAll))
+
 
 if __name__ == '__main__':
     while True:
@@ -745,5 +798,11 @@ if __name__ == '__main__':
             ic.Train_EfficientNet_Kfold()
         elif mode == 13:
             ic.Read_Images_Kfold()
+            ic.Train_VGG19_Kfold()
+
+            ic.Read_Images_Kfold()
+            ic.Train_EfficientNet_Kfold()
+        elif mode == 14:
+            ic.Test_All_Models_For_True_Accuracy()
         elif mode == 0:
             break

@@ -45,10 +45,8 @@ def post_upload_photo():
 
 @api.route('/uploadInfo', methods=['POST'])
 def post_upload_info():
-    print("Got something")
     plastic = request.values["plastic"]
     filename = request.values["filename"]
-    print(plastic + " " + filename)
 
     new_filename = "G" + plastic[0] + "-D" + filename
     print(new_filename)

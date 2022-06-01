@@ -5,10 +5,12 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Matrix
+import android.graphics.drawable.ColorDrawable
 import android.media.ExifInterface
 import android.net.Uri
 import android.os.Bundle
@@ -16,7 +18,7 @@ import android.os.Environment
 import android.provider.AlarmClock.EXTRA_MESSAGE
 import android.provider.MediaStore
 import android.util.Log
-import android.view.View
+import android.view.*
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -114,6 +116,15 @@ class MainActivity : AppCompatActivity(), IObserver {
         btnMoreInfo?.setOnClickListener {
             buttonMoreInfoClicked()
         }
+
+
+        val window: Window = this@MainActivity.window
+        // clear FLAG_TRANSLUCENT_STATUS flag:
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+        // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        // finally change the color
+        window.statusBarColor = ContextCompat.getColor(this@MainActivity, R.color.black)
     }
 
     override fun onResume() {
@@ -257,8 +268,30 @@ class MainActivity : AppCompatActivity(), IObserver {
         var selectionSpinnerData = "SELECT PLASTIC"
 
         var spinnerData = arrayListOf<String>("SELECT PLASTIC", "1 PET", "2 HDPE", "3 PVC", "4 LDPE", "5 PP", "6 PS", "7 OTHER", "8 NOT PLASTIC")
-        spinnerAdapter = ArrayAdapter(applicationContext, android.R.layout.simple_spinner_dropdown_item, spinnerData)
-        spinnerAdapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        //spinnerAdapter = ArrayAdapter(applicationContext, R.layout.spinner_item, spinnerData)
+        val spinnerAdapter: ArrayAdapter<String?> = object :
+            ArrayAdapter<String?>(applicationContext, R.layout.spinner_item,
+                spinnerData as List<String?>
+            ) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val v = super.getView(position, convertView, parent)
+                (v as TextView)
+                val nightModeFlags = context.resources.configuration.uiMode and
+                        Configuration.UI_MODE_NIGHT_MASK
+                when (nightModeFlags) {
+                    Configuration.UI_MODE_NIGHT_YES -> {v.setTextColor(
+                        resources.getColorStateList(R.color.alice_blue)
+                    )}
+                    Configuration.UI_MODE_NIGHT_NO -> {v.setTextColor(
+                        resources.getColorStateList(R.color.smokey_black)
+                    )}
+                    Configuration.UI_MODE_NIGHT_UNDEFINED -> {}
+                }
+
+                return v
+            }
+        }
+        spinnerAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
 
         icon = resultPopupView.findViewById(R.id.icon)
         txtName = resultPopupView.findViewById(R.id.txtName)
@@ -272,6 +305,8 @@ class MainActivity : AppCompatActivity(), IObserver {
         linearLayoutButtons1 = resultPopupView.findViewById(R.id.linearLayoutButtons1)
         linearLayoutButtons2 = resultPopupView.findViewById(R.id.linearLayoutButtons2)
 
+
+
         plasticSpinner?.adapter = spinnerAdapter
         plasticSpinner?.onItemSelectedListener = object:AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
@@ -280,7 +315,7 @@ class MainActivity : AppCompatActivity(), IObserver {
                 position: Int,
                 id: Long
             ) {
-                selectionSpinnerData = spinnerAdapter?.getItem(position)!!
+                selectionSpinnerData = spinnerAdapter.getItem(position)!!
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -348,6 +383,7 @@ class MainActivity : AppCompatActivity(), IObserver {
 
         dialogBuilder.setView(resultPopupView)
         dialog = dialogBuilder.create()
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialog.show()
     }
 
