@@ -6,55 +6,79 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".InfoActivity">
+    tools:context=".InfoActivity"
+    android:id="@+id/mainLayout"
+    android:textColor = "?android:textColorPrimary">
 
     <ImageView
         android:id="@+id/recycleImageView"
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_marginTop="20dp"
+        android:layout_marginBottom="30dp"
         android:layout_gravity="center_horizontal"
         android:contentDescription="Plastic Picture"
         android:background="@drawable/ic_baseline_cached_24"/>
 
-    <TextView
-        android:id="@+id/textAbbreviation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:textColor="@color/black"
-        android:textSize="20dp"
-        android:layout_gravity="center_horizontal"
-        android:text="Test Text"/>
+    <androidx.cardview.widget.CardView
+        android:id="@+id/eu"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cardElevation="10dp"
+        app:cardCornerRadius="0dp"
+        android:layout_margin="0dp"
+        app:cardBackgroundColor="?colorOnPrimary">
 
-    <TextView
-        android:id="@+id/textName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:textSize="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:text="Test Text"/>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:fontFamily="@font/nunito_semibold"
+            android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/textDescription"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:textSize="15dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:text="Test Text"/>
+            <TextView
+                android:id="@+id/textName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/nunito_extrabold"
+                android:textColor = "?android:textColorPrimary"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:justificationMode="inter_word" android:textSize="22dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:text="Test Text"/>
 
-    <Button
-        android:id="@+id/btnInfoBack"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:layout_marginStart="25dp"
-        android:text="Back" />
+            <TextView
+                android:id="@+id/textDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/textName"
+                android:justificationMode="inter_word" android:fontFamily="@font/nunito_semibold"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:textColor = "?android:textColorPrimary"
+                android:textSize="17dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:text="Test Text"/>
+
+            <Button
+                android:id="@+id/btnInfoBack"
+                android:layout_width="150dp"
+                android:fontFamily="@font/nunito_semibold"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                android:textSize="16dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/rounded_button_default"
+                android:text="Back"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
 
 </LinearLayout>
