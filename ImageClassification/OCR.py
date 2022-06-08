@@ -6,7 +6,6 @@ import os
 class OCR:
     def __init__(self):
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "files/ocr-recycled-plastic.json"
-        self._test_path = "testPhotos"
 
     def Detect_Text_In_Local_File(self, path, printOutput):
         client = vision.ImageAnnotatorClient()
@@ -93,60 +92,7 @@ class OCR:
 
         return pred
 
-    def Test_Photos(self):
-
-        for img in os.listdir(self._test_path):
-            image_path = self._test_path + "/" + img
-
-            print("Testing " + str(image_path))
-
-            # self.Detect_Text_In_Local_File(image_path)
-            print(self.Classify_Photo_OCR(image_path, True))
-
-    def maxelements(self, seq):
-        max_indices = []
-        max_val = seq[0]
-        for i, val in ((i, val) for i, val in enumerate(seq) if val >= max_val):
-            if val == max_val:
-                max_indices.append(i + 1)
-            else:
-                max_val = val
-                max_indices = [i + 1]
-
-        return max_indices
-
-    def Test_OCR_For_True_Accuracy(self):
-        all_photos_test_path = "../TestingImages"
-        ctAll = 0
-        ctCorrect = 0
-        ctWrong = 0
-        ctSemi = 0
-
-        print("\nName: " + "OCR" + "\n")
-        for img in os.listdir(all_photos_test_path):
-            img_name = img
-            path = all_photos_test_path + "/" + img
-            pred = self.Classify_Photo_OCR(path, True)
-            maxx = self.maxelements(pred)
-
-            # print("Guessed val: " + str(img_name) + " " + str(maxx))
-            ctAll += 1
-            if int(img_name[1]) in maxx:
-                if len(maxx) == 1:
-                    ctCorrect += 1
-                else:
-                    ctSemi += 1
-            else:
-                ctWrong += 1
-
-        print("Guessed: " + str(ctCorrect) + ", got wrong: " + str(ctWrong) + ", was close: " + str(
-            ctSemi) + "; out of " + str(ctAll))
-
-
-
 
 if __name__ == '__main__':
     ocr = OCR()
-    ocr.Test_OCR_For_True_Accuracy()
-    # ocr.Test_Photos()
-    # ocr.Classify_Photo_OCR("ServerPhotos/2022-03-23_13-14-47-754.jpg", True)
+

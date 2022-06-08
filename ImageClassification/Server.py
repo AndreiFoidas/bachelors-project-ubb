@@ -16,14 +16,6 @@ ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 api = Flask(__name__)
 api.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-test = [{"id": 1, "name": "andrei"}]
-
-
-@api.route('/test', methods=['GET'])
-def get_test():
-    return json.dumps(test)
-
-
 @api.route('/uploadPhoto', methods=['POST'])
 def post_upload_photo():
     if request.files.get("uploaded_file") is None:
