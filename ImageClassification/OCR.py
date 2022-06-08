@@ -9,8 +9,6 @@ class OCR:
         self._test_path = "testPhotos"
 
     def Detect_Text_In_Local_File(self, path, printOutput):
-        """Detects text in the file."""
-
         client = vision.ImageAnnotatorClient()
 
         with io.open(path, 'rb') as image_file:
@@ -46,11 +44,11 @@ class OCR:
 
         for label in label_array:
             if text.casefold() == label.casefold():
-                similarity_sum += 1
+                similarity_sum += 0.66
 
         for number in number_array:
             if text == number:
-                similarity_sum += 0.5
+                similarity_sum += 0.33
 
         return similarity_sum
 
@@ -60,7 +58,7 @@ class OCR:
         info = self.Detect_Text_In_Local_File(photo_path, False)
 
         if len(info) == 0:
-            pred[7] += 1.5
+            pred[7] += 0.99
             return pred
 
         item = info[0]
@@ -88,6 +86,10 @@ class OCR:
             # 8 NOT PLASTIC
             pred[7] += self.Similarity_Percentage(text, ["", "PAP", "GL", "e", "ce", "BIO", "VEGAN", "FSC", "6M", "12M", "24M", "ALU", "FE"],
                                                   ["21", "90", "70", "84", "14", "81", "40"])
+
+        for i in range(len(pred)):
+            if pred[i] > 1:
+                pred[i] = 1
 
         return pred
 
