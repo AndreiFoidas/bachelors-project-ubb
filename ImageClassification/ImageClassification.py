@@ -665,8 +665,6 @@ if __name__ == '__main__':
 
             ic.Read_Images_Kfold()
             ic.Train_EfficientNet_Kfold()
-        elif mode == 14:
-            ic.Test_All_Models_For_True_Accuracy()
         elif mode == 15:
             ic.Read_Images_Kfold()
             ic.Train_EfficientNet_Kfold_FineTune()

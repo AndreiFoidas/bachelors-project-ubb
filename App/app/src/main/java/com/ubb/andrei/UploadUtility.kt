@@ -36,9 +36,9 @@ class UploadUtility(activity: Activity, override val observers: ArrayList<IObser
     }
 
     fun uploadFile(sourceFile: File, uploadedFileName: String? = null) {
-        guess = ServerResponse(1, "2 HDPE", 99.0, "success", "file.png")
+        /*guess = ServerResponse(1, "2 HDPE", 99.0, "success", "file.png")
         sendUpdateEvent(guess)
-        return
+        return*/
         Thread {
             val mimeType = getMimeType(sourceFile);
             if (mimeType == null) {

@@ -72,8 +72,9 @@ fun initPlastics(): List<Plastic>{
         R.drawable.p7f, "#d9ae4a", reusable = false, recyclable = false)
     plasticList.add(plastic)
     //8 NOT PLASTIC
-    plastic = Plastic(8, "NOT PLASTIC", "Plastic combined with other materials",
-        "", R.drawable.p8f, "#43505f", reusable = false, recyclable = false)
+    plastic = Plastic(8, "NOT PLASTIC", "Not plastic",
+        "This is not a plastic, or is plastic combined with other materials. \n\nThese products cannot be recycled as plastic and usually are not recommended for reuse. ",
+        R.drawable.p8f, "#43505f", reusable = false, recyclable = false)
     plasticList.add(plastic)
 
     return plasticList

@@ -29,7 +29,6 @@ import com.ubb.andrei.domain.ServerResponse
 import com.ubb.andrei.domain.plasticList
 import com.ubb.andrei.utils.IObserver
 import com.ubb.andrei.utils.URIPathHelper
-import okhttp3.*
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -98,13 +97,6 @@ class MainActivity : AppCompatActivity(), IObserver {
 
         btnTakePicture?.setOnClickListener {
             buttonTakePictureClicked()
-            /* //for testing
-            photoGuess = ServerResponse(1, "Error", 0.0, "Fail", "")
-            this@MainActivity.runOnUiThread {
-                createNewResultPopup()
-            }
-
-             */
         }
 
         btnOpenGallery?.setOnClickListener {
@@ -174,6 +166,7 @@ class MainActivity : AppCompatActivity(), IObserver {
             isTaken = true
             stringPhoto = photoFile.absolutePath
             btnUploadPicture?.isEnabled = true
+            resultLayout?.visibility = View.INVISIBLE
         }
     }
 
@@ -188,41 +181,8 @@ class MainActivity : AppCompatActivity(), IObserver {
             isTaken = false
             uriPhoto = chosenImage
             btnUploadPicture?.isEnabled = true
+            resultLayout?.visibility = View.INVISIBLE
         }
-    }
-
-    fun testConnection(){
-        Thread {
-            val client = OkHttpClient()
-            val serverURL: String = "http://192.168.0.148:420"
-            try {
-                val formBody = FormBody.Builder()
-                    .add("username", "test")
-                    .add("password", "test")
-                    .build()
-
-                val request: Request = Request.Builder()
-                    .url("$serverURL/uploadPhoto")
-                    .post(formBody)
-                    .build()
-
-                val call: Call = client.newCall(request)
-
-                val response: Response = call.execute()
-
-                if (response.isSuccessful) {
-                    Log.d("File upload", "success")
-                    Toast.makeText(this, "success", Toast.LENGTH_LONG).show()
-                } else {
-                    Log.e("File upload", "failed")
-                    Toast.makeText(this, "failed", Toast.LENGTH_LONG).show()
-                }
-            } catch (ex: Exception) {
-                ex.printStackTrace()
-                Log.e("File upload", "failed")
-                Toast.makeText(this, "failed + ${ex.message}", Toast.LENGTH_LONG).show()
-            }
-        }.start()
     }
 
     fun buttonTakePictureClicked(){
